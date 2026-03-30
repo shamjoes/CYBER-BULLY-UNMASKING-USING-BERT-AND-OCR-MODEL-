@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications - Unmaking Cyberbullies</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 30px;
+            position: relative;
+        }
+        /* Animated background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            right: -20%;
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: float1 30s infinite;
+        }
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: -30%;
+            left: -10%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: float2 40s infinite;
+        }
+        @keyframes float1 {
+            0%, 100% { transform: translate(0, 0); }
+            33% { transform: translate(50px, -30px); }
+            66% { transform: translate(-20px, 40px); }
+        }
+        @keyframes float2 {
+            0%, 100% { transform: translate(0, 0); }
+            33% { transform: translate(-40px, 30px); }
+            66% { transform: translate(30px, -40px); }
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: white;
+            text-decoration: none;
+            font-size: 1.1em;
+            padding: 12px 25px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            border: 1px solid rgba(255,255,255,0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+        }
+        .back-link:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateX(-5px);
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 35px;
+            border-radius: 30px;
+            max-width: 900px;
+            margin: auto;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 1;
+            border: 1px solid rgba(255,255,255,0.5);
+            animation: slideUp 0.5s ease;
+        }
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        h2 {
+            margin-bottom: 30px;
+            color: #333;
+            font-size: 2em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        h2::before {
+            content: '🔔';
+            font-size: 1.2em;
+        }
+        .notification {
+            padding: 20px;
+            border-radius: 20px;
+            background: white;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            animation: slideInRight 0.3s ease;
+        }
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        .notification:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+        }
+        .message-text {
+            flex: 1;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+        .admin-message {
+            color: #f5576c;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .admin-message::before {
+            content: '⚠️';
+            font-size: 1.2em;
+        }
+        .user-message {
+            color: #333;
+        }
+        .user-message b {
+            color: #667eea;
+        }
+        .buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .buttons form {
+            display: inline;
+        }
+        .ignore-btn, .delete-btn {
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.95em;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .ignore-btn {
+            background: #858796;
+            color: white;
+        }
+        .ignore-btn:hover {
+            background: #6c757d;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(108, 117, 125, 0.4);
+        }
+        .delete-btn {
+            background: #e74a3b;
+            color: white;
+        }
+        .delete-btn:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px;
+            color: #999;
+            font-size: 1.2em;
+        }
+        .empty-state::before {
+            content: '📭';
+            display: block;
+            font-size: 3em;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+        /* Search: "notification center modern design" */
+        /* Search: "message inbox glassmorphism UI" */
+        /* Search: "social media alerts interface" */
+    </style>
+</head>
+<body>
+
+<a href="/dashboard" class="back-link">← Back to Dashboard</a>
+
+<div class="container">
+    <h2>Your Notifications</h2>
+
+    {% for msg in messages %}
+    <div class="notification">
+        <div class="message-text">
+            {% if msg[1] == "ADMIN" %}
+                <div class="admin-message">
+                    {{ msg[2] }}
+                </div>
+            {% else %}
+                <div class="user-message">
+                    <b>@{{ msg[1] }}</b>: {{ msg[2] }}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="buttons">
+            <form action="/ignore_message" method="post" style="display:inline;">
+                <input type="hidden" name="message_id" value="{{ msg[0] }}">
+                <button type="submit" class="ignore-btn">Ignore</button>
+            </form>
+
+            <form action="/delete_comment" method="post" style="display:inline;">
+                <input type="hidden" name="message_id" value="{{ msg[0] }}">
+                <input type="hidden" name="reply_id" value="{{ msg[3] }}">
+                <button type="submit" class="delete-btn">Delete</button>
+            </form>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        No notifications yet
+    </div>
+    {% endfor %}
+</div>
+
+</body>
+</html>

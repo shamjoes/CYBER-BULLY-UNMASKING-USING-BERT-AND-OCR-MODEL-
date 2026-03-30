@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Unmaking Cyberbullies</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f8fa;  /* Twitter light gray */
+            min-height: 100vh;
+            display: flex;
+            position: relative;
+            overflow-x: hidden;
+        }
+        /* Animated background – now very subtle */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            right: -20%;
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(0,0,0,0.02) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: float1 30s infinite;
+            z-index: 0;
+        }
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: -30%;
+            left: -10%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(0,0,0,0.02) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: float2 40s infinite;
+            z-index: 0;
+        }
+        @keyframes float1 {
+            0%, 100% { transform: translate(0, 0); }
+            33% { transform: translate(50px, -30px); }
+            66% { transform: translate(-20px, 40px); }
+        }
+        @keyframes float2 {
+            0%, 100% { transform: translate(0, 0); }
+            33% { transform: translate(-40px, 30px); }
+            66% { transform: translate(30px, -40px); }
+        }
+        
+        /* Left Sidebar */
+        .sidebar {
+            width: 280px;
+            background: white;  /* solid white */
+            backdrop-filter: blur(10px);
+            padding: 30px 20px;
+            height: 100vh;
+            position: sticky;
+            top: 0;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+            z-index: 2;
+            border-right: 1px solid #e1e8ed;
+        }
+        .sidebar h2 {
+            color: #1DA1F2;  /* Twitter blue */
+            margin-bottom: 40px;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            line-height: 1.3;
+        }
+        .sidebar h2::before {
+            content: '🛡️';
+            font-size: 1.5em;
+        }
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 10px 0;
+            padding: 12px 15px;
+            text-decoration: none;
+            color: #14171a;  /* dark gray */
+            font-size: 1.1em;
+            border-radius: 30px;  /* more rounded like Twitter */
+            transition: all 0.2s ease;
+        }
+        .sidebar a:hover {
+            background: #e8f5fe;  /* light blue hover */
+            color: #1DA1F2;
+            transform: translateX(5px);
+        }
+        .notification-badge {
+            background: #1DA1F2;  /* Twitter blue */
+            color: white;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            margin-left: 5px;
+        }
+        .logout {
+            color: #e0245e !important;  /* Twitter red/pink */
+            margin-top: 50px !important;
+            border-top: 2px solid #e1e8ed;
+            padding-top: 20px !important;
+        }
+
+        /* Main Content */
+        .main {
+            flex: 1;
+            padding: 30px;
+            max-width: 700px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Strike Badge */
+        .strike-badge {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #e0245e;  /* Twitter red/pink */
+            color: white;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1.1em;
+            box-shadow: 0 5px 15px rgba(224, 36, 94, 0.3);
+            z-index: 3;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.3);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* Tweet Box */
+        .tweet-box {
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+            border: 1px solid #e1e8ed;
+            animation: slideDown 0.5s ease;
+        }
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .tweet-box textarea {
+            width: 100%;
+            height: 100px;
+            border-radius: 20px;
+            padding: 15px;
+            border: 2px solid #e1e8ed;
+            font-size: 1em;
+            font-family: inherit;
+            resize: none;
+            transition: all 0.2s ease;
+        }
+        .tweet-box textarea:focus {
+            outline: none;
+            border-color: #1DA1F2;
+            box-shadow: 0 0 0 4px rgba(29, 161, 242, 0.1);
+        }
+        .file-input-wrapper {
+            margin: 15px 0;
+            position: relative;
+        }
+        .file-input-wrapper input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            background: #f5f8fa;
+            border-radius: 15px;
+            border: 2px dashed #ccd6dd;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .file-input-wrapper input[type="file"]:hover {
+            border-color: #1DA1F2;
+            background: #e8f5fe;
+        }
+        .tweet-btn {
+            background: #1DA1F2;  /* solid blue */
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .tweet-btn:hover {
+            background: #1a91da;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(29, 161, 242, 0.3);
+        }
+
+        /* Tweet Card */
+        .tweet-card {
+            background: white;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: all 0.2s ease;
+            border: 1px solid #e1e8ed;
+            animation: fadeIn 0.5s ease;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .tweet-card:hover {
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .tweet-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .avatar {
+            width: 40px;
+            height: 40px;
+            background: #1DA1F2;  /* solid blue */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        .username {
+            font-weight: bold;
+            color: #14171a;
+            font-size: 1.1em;
+        }
+        .username span {
+            color: #657786;  /* light gray */
+            font-weight: normal;
+        }
+        .tweet-content {
+            margin-bottom: 15px;
+            line-height: 1.6;
+            color: #14171a;
+        }
+        
+        /* Image Display - Fixed */
+        .tweet-image-container {
+            margin: 20px 0;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.05);
+            background: #f5f8fa;
+            position: relative;
+            max-width: 100%;
+        }
+        .tweet-image {
+            width: 100%;
+            max-width: 500px;
+            height: auto;
+            display: block;
+            border-radius: 15px;
+            transition: transform 0.2s ease;
+            object-fit: cover;
+        }
+        .tweet-image:hover {
+            transform: scale(1.02);
+        }
+        .image-caption {
+            padding: 10px;
+            background: #f5f8fa;
+            color: #657786;
+            font-size: 0.9em;
+            text-align: center;
+            border-top: 1px solid #e1e8ed;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 15px;
+            margin: 15px 0;
+            padding: 10px 0;
+            border-top: 1px solid #e1e8ed;
+            border-bottom: 1px solid #e1e8ed;
+        }
+        .actions a {
+            text-decoration: none;
+            color: #657786;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 15px;
+            border-radius: 20px;
+            transition: all 0.2s ease;
+        }
+        .actions a:hover {
+            background: #e8f5fe;
+            color: #1DA1F2;
+        }
+        
+        /* Reply Section */
+        .reply-box {
+            margin: 15px 0;
+        }
+        .reply-box form {
+            display: flex;
+            gap: 10px;
+        }
+        .reply-box input {
+            flex: 1;
+            padding: 12px 20px;
+            border: 2px solid #e1e8ed;
+            border-radius: 25px;
+            font-size: 0.95em;
+            transition: all 0.2s ease;
+        }
+        .reply-box input:focus {
+            outline: none;
+            border-color: #1DA1F2;
+            box-shadow: 0 0 0 3px rgba(29, 161, 242, 0.1);
+        }
+        .reply-box button {
+            background: #1DA1F2;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .reply-box button:hover {
+            background: #1a91da;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(29, 161, 242, 0.3);
+        }
+        
+        /* Replies */
+        .replies-section {
+            margin-top: 15px;
+        }
+        .reply {
+            background: #f5f8fa;
+            padding: 12px 15px;
+            margin: 8px 0;
+            border-radius: 15px;
+            border-left: 4px solid #1DA1F2;
+            animation: slideIn 0.3s ease;
+            font-size: 0.95em;
+        }
+        .reply b {
+            color: #1DA1F2;
+            margin-right: 5px;
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Right Panel */
+        .right-panel {
+            width: 280px;
+            padding: 30px 20px;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            z-index: 1;
+        }
+        .stats-card {
+            background: white;
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border: 1px solid #e1e8ed;
+        }
+        .stats-card h3 {
+            color: #14171a;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e1e8ed;
+            color: #657786;
+        }
+        .stat-value {
+            font-weight: bold;
+            color: #1DA1F2;
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #1DA1F2;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Image placeholder comments for Google search */
+        /* Search: "twitter feed image card design" */
+        /* Search: "social media post with image UI" */
+        /* Search: "modern image gallery layout" */
+        /* Search: "instagram style image feed design" */
+    </style>
+</head>
+<body>
+
+<!-- Left Sidebar -->
+<div class="sidebar">
+    <h2>Unmaking Cyberbullies</h2>
+    <a href="/dashboard">
+        <span>🏠</span> Home
+    </a>
+    <a href="/messages">
+        <span>💬</span> Messages
+        {% if notification_count > 0 %}
+            <span class="notification-badge">{{ notification_count }}</span>
+        {% endif %}
+    </a>
+    <a href="/logout" class="logout">
+        <span>🚪</span> Logout
+    </a>
+</div>
+
+<!-- Strike Badge -->
+<div class="strike-badge">
+    ⚠️ Strikes: {{ strike }}/3
+</div>
+
+<!-- Main Content -->
+<div class="main">
+    <h2 style="color: white; margin-bottom: 20px; text-shadow: 2px 2px 4px rgba(0,0,0,0.2);">
+        🏠 Home Feed
+    </h2>
+
+    <!-- Tweet Box -->
+    <div class="tweet-box">
+        <form action="/post" method="POST" enctype="multipart/form-data">
+            <textarea name="tweet" placeholder="What's happening?"></textarea>
+            
+            <div class="file-input-wrapper">
+                <!-- Search: "file upload button design modern" -->
+                <input type="file" name="image" accept="image/*">
+            </div>
+
+            <button type="submit" class="tweet-btn">
+                <span>📤</span> Tweet
+            </button>
+        </form>
+    </div>
+
+    <!-- Tweets Feed -->
+    {% for tweet in tweets %}
+    <div class="tweet-card">
+        <div class="tweet-header">
+            <div class="avatar">
+                {{ tweet[1][0]|upper }}
+            </div>
+            <div class="username">
+                {{ tweet[1] }} <span>• just now</span>
+            </div>
+        </div>
+
+        <div class="tweet-content">
+
+<p id="tweet{{ tweet[0] }}">
+    {{ tweet[2] }}
+</p>
+
+<button onclick="translateText('tweet{{ tweet[0] }}')">
+🌐 View Translation
+</button>
+
+</div>
+
+        <!-- Image Display - FIXED SECTION -->
+        {% if tweet[3] %}
+        <div class="tweet-image-container">
+            <!-- Search: "social media image display card" -->
+            <!-- Search: "modern image gallery thumbnail" -->
+            <img src="{{ url_for('static', filename='uploads/' + tweet[3]) }}" 
+                 alt="Tweet image" 
+                 class="tweet-image"
+                 onerror="this.onerror=null; this.src='https://via.placeholder.com/400x300?text=Image+Not+Found';">
+            <div class="image-caption">
+                📸 Image attached to tweet
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="actions">
+            <a href="/like/{{ tweet[0] }}">
+                <span>❤️</span> Like
+            </a>
+        </div>
+
+        <!-- Reply Box -->
+        <div class="reply-box">
+            <form action="/reply/{{ tweet[0] }}" method="POST">
+                <input type="text" name="reply" placeholder="Write a reply..." required>
+                <button type="submit">Reply</button>
+            </form>
+        </div>
+
+        <!-- Replies -->
+        <div class="replies-section">
+            {% for reply in replies %}
+                {% if reply[1] == tweet[0] %}
+                    <b>@{{ reply[2] }}</b>:
+<span id="reply{{ reply[0] }}">{{ reply[3] }}</span>
+
+<button onclick="translateText('reply{{ reply[0] }}')">
+🌐 Translate
+</button>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="tweet-card" style="text-align: center; padding: 40px;">
+        <div style="font-size: 3em; margin-bottom: 15px;">📭</div>
+        <h3 style="color: #666;">No tweets yet</h3>
+        <p style="color: #999;">Be the first to share something!</p>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Right Panel -->
+<div class="right-panel">
+    <div class="stats-card">
+        <h3><span>📊</span> Quick Stats</h3>
+        <div class="stat-item">
+            <span>Your Posts</span>
+            <span class="stat-value">{{ tweets|length }}</span>
+        </div>
+        <div class="stat-item">
+            <span>Notifications</span>
+            <span class="stat-value">{{ notification_count|default('0') }}</span>
+        </div>
+        <div class="stat-item">
+            <span>Strike Count</span>
+            <span class="stat-value">{{ strike }}/3</span>
+        </div>
+        <div class="stat-item">
+            <span>Account Status</span>
+            <span class="stat-value" style="color: {% if strike >= 3 %}#f5576c{% else %}#2ecc71{% endif %};">
+                {% if strike >= 3 %}⚠️ At Risk{% else %}✅ Active{% endif %}
+            </span>
+        </div>
+    </div>
+</div>
+
+<script>
+function translateText(id){
+
+let text = document.getElementById(id).innerText;
+
+fetch("/translate?text=" + encodeURIComponent(text))
+.then(res => res.text())
+.then(data => {
+document.getElementById(id).innerText = data;
+});
+
+}
+// Image error handling
+    document.addEventListener('DOMContentLoaded', function() {
+        const images = document.querySelectorAll('.tweet-image');
+        images.forEach(img => {
+            img.onerror = function() {
+                this.onerror = null;
+                this.src = 'https://via.placeholder.com/400x300?text=Image+Not+Found';
+                this.alt = 'Image failed to load';
+            };
+        });
+    });
+
+    // Search: "image lazy loading implementation"
+    // Search: "image fallback handling javascript"
+</script>
+
+</body>
+</html>
